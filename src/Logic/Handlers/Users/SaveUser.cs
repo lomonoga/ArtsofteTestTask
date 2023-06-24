@@ -1,9 +1,22 @@
+using Api.DTO;
+using Logic.DTO.Responses;
 using MediatR;
 
 namespace Logic.Handlers.Users;
 
-public class SaveUser
-{
-    private readonly IMediator mediator;
+public record SaveUser(UserRequest UserRequest) : IRequest<UserResponse>;
 
+public class SaveUserHandler : IRequestHandler<SaveUser, UserResponse>
+{
+    private readonly IMediator _mediator;
+
+    public SaveUserHandler(IMediator mediator)
+    {
+        _mediator = mediator;
+    }
+    
+    public Task<UserResponse> Handle(SaveUser request, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
 }

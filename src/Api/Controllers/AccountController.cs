@@ -1,4 +1,5 @@
 using Api.DTO;
+using Logic.Handlers.Users;
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
 
@@ -28,8 +29,12 @@ public class AccountController : ControllerBase
     #endregion
 
     [HttpPost("register")]
-    public async Task<IActionResult> RegisterUser([FromBody]UserRequest userRequest)
+    public async Task<IActionResult> RegisterUser([FromBody]UserRequest userRequest, CancellationToken token)
     {
-        _mediator.Send();
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        
+        //var result = await _mediator.Send(new SaveUser(userRequest), token);
+        return Ok();
     }
 }
