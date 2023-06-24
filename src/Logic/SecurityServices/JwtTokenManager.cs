@@ -7,20 +7,23 @@ namespace Logic.SecurityServices;
 
 public static class JwtTokenManager
 {
-    public static string GenerateToken()
+    public static string GenerateToken(string phone)
     {
-        var authClaims = new List<Claim>
+        var claims = new List<Claim>
         {
-            new(ClaimTypes.MobilePhone, )
+            new(ClaimTypes.MobilePhone, phone)
         };
-
-        var authSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(configuration["JWT:SecretKey"]!));
+        
+        const string key = "Memento mori, we're all going to die";
+        var authSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key));
+        
         var token = new JwtSecurityToken(
             null,
             null,
-            expires: expiresAt,
-            claims: authClaims,
-            signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256));
+            claims: claims,
+            signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256),
+            expires: DateTime.UtcNow.Add(TimeSpan.FromHours(2)));
+        
         var handler = new JwtSecurityTokenHandler();
         return handler.WriteToken(token);
     }
