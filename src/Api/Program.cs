@@ -1,3 +1,4 @@
+using Data;
 using Logic;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,6 +8,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddLogic(builder.Configuration);
+builder.Services.AddData(builder.Configuration);
 
 var app = builder.Build();
 
