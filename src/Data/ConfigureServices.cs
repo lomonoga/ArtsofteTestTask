@@ -1,4 +1,3 @@
-using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,13 +8,9 @@ public static class ConfigureServices
 {
     public static void AddData(this IServiceCollection services, IConfiguration configuration)
     {
-        var assembly = Assembly.GetExecutingAssembly();
-        services.AddDbContext<>(options =>
+        services.AddDbContext<ArtsofteDbContext>(options =>
         {
-            options.UseNpgsql(configuration.GetConnectionString("pos_connection")!,
-                opts => opts.MigrationsAssembly(assembly.GetName().Name));
+            options.UseNpgsql(configuration.GetConnectionString("def_connection"));
         });
-        services.AddScoped<>();
-
     }
 }
