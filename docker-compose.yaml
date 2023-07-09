@@ -1,0 +1,12 @@
+version: '3.5'
+
+services:
+  db_art:
+    restart: always
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root_password
+      - POSTGRES_DB=artsofte
+    ports: 
+      - 5432:5432
+    image: postgres:13.2-alpine
