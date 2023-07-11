@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Api.DTO;
 
-public class UserRequest
+public class UserRegisterRequest
 {
     [Required(ErrorMessage = "Не указано ФИО")]
     [StringLength(250, ErrorMessage = "ФИО должен быть не больше 250 символов")]

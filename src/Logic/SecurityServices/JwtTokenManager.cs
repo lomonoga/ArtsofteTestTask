@@ -1,24 +1,27 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Data.Domain.Models;
+using Logic.Interfaces;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Logic.SecurityServices;
 
-public static class JwtTokenManager
+public class JwtTokenManager : ITokenManager
 {
-    public static string GenerateToken(string phone)
+    public string GenerateToken(User user)
     {
         var claims = new List<Claim>
         {
-            new(ClaimTypes.MobilePhone, phone)
+            new(ClaimTypes.Name, user.FIO),
+            new(ClaimTypes.MobilePhone, user.Phone)
         };
         
-        const string key = "Memento mori, we're all going to die";
+        const string key = "Memento mori, live and enjoy every moment";
         var authSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key));
         
         var token = new JwtSecurityToken(
-            null,
+            "Artsofte",
             null,
             claims: claims,
             signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256),
@@ -27,5 +30,4 @@ public static class JwtTokenManager
         var handler = new JwtSecurityTokenHandler();
         return handler.WriteToken(token);
     }
-
 }

@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Logic.Handlers.Users;
 
-public record SaveUser(UserRequest UserRequest) : IRequest<UserResponse>;
+public record SaveUser(UserRegisterRequest UserRegisterRequest) : IRequest<UserResponse>;
 
 public class SaveUserHandler : IRequestHandler<SaveUser, UserResponse>
 {
