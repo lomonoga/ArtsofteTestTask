@@ -1,5 +1,4 @@
 using Api.DTO;
-using Logic.Handlers.Users;
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
 
@@ -7,7 +6,7 @@ namespace Api.Controllers;
 
 [ApiController]
 [Produces("application/json")]
-[Route("api/account/[controller]")]
+[Route("api/[controller]")]
 public class AccountController : ControllerBase
 {
     private readonly IMediator _mediator;
