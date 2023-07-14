@@ -2,7 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Logic.Interfaces;
 
-namespace Logic.SecurityServices;
+namespace Logic.Services;
 
 public class HashService : IHashService
 {

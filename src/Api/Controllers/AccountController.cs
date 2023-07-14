@@ -1,4 +1,5 @@
 using Api.DTO;
+using Logic.Handlers.Users;
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -22,9 +23,9 @@ public class AccountApiController : ControllerBase
     /// <summary>
     ///     Позволяет добавить пользователя 
     /// </summary>
-    /// <param name="userRegisterRequest">Данные о пользователи</param>
+    /// <param name="userRegisterRequest">Данные о пользователе</param>
     /// <response code="200">Добавление прошло успешно</response>
-    /// <response code="400">Ошибка добавления</response>
+    /// <response code="400">Такой пользователь уже зарегистрирован</response>
     
     #endregion
     
@@ -34,8 +35,8 @@ public class AccountApiController : ControllerBase
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
         
-        //var result = await _mediator.Send(new SaveUser(userRequest), token);
-        return Ok();
+        var result = await _mediator.Send(new SaveUser(userRegisterRequest), token);
+        return Ok(result);
     }
     
     #region Swagger
@@ -50,6 +51,42 @@ public class AccountApiController : ControllerBase
     
     [HttpPost("login")]
     public async Task<IActionResult> LoginUser(CancellationToken token)
+    {
+        return Ok();
+    }
+    
+    #region Swagger
+
+    /// <summary>
+    ///     Позволяет пользователю выйти из системы 
+    /// </summary>
+    /// <response code="200">Выход произведён успешно</response>
+    /// <response code="400">Произошла ошибка выхода</response>
+    
+    #endregion
+    
+    [Authorize]
+    [HttpPost("logout")]
+    public async Task<IActionResult> LogoutUser(CancellationToken token)
+    {
+        
+        return Ok();
+    }
+    
+    #region Swagger
+
+    /// <summary>
+    ///     Позволяет получить данные текущего пользователя
+    /// </summary>
+    /// <response code="200">Данные переданы успешно</response>
+    /// <response code="400">Ошибка получения данных</response>
+    /// <response code="401">Пользователь не авторизован</response>
+    
+    #endregion
+    
+    [Authorize]
+    [HttpPost("get-my-info")]
+    public async Task<IActionResult> GetCurrentUser(CancellationToken token)
     {
         
         return Ok();

@@ -5,7 +5,7 @@ using Data.Domain.Models;
 using Logic.Interfaces;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Logic.SecurityServices;
+namespace Logic.Services;
 
 public class JwtTokenManager : ITokenManager
 {

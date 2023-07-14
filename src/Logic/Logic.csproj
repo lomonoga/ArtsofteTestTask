@@ -10,6 +10,7 @@
     <ItemGroup>
         <PackageReference Include="Mapster" Version="7.4.0-pre06" />
         <PackageReference Include="AutoFilterer" Version="2.13.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.0" />
         <PackageReference Include="Microsoft.OpenApi" Version="1.2.3" />
     </ItemGroup>
 

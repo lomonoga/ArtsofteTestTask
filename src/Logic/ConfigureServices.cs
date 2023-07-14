@@ -1,7 +1,7 @@
 using System.Reflection;
 using System.Text;
 using Logic.Interfaces;
-using Logic.SecurityServices;
+using Logic.Services;
 using Mapster;
 using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -18,8 +18,10 @@ public static class ConfigureServices
     {
         var assembly = Assembly.GetExecutingAssembly();
         
-        services.AddSingleton<IHashService, HashService>();
+        services.AddHttpContextAccessor();
+        services.AddScoped<ISecurityService, SecurityService>();
         services.AddSingleton<ITokenManager, JwtTokenManager>();
+        services.AddSingleton<IHashService, HashService>();
         services.AddAuthentication()
             .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme,opt =>
             {
