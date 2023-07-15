@@ -1,5 +1,7 @@
 using Api.DTO;
+using Data.Domain.Models;
 using Logic.Handlers.Users;
+using Logic.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -12,10 +14,14 @@ namespace Api.Controllers;
 public class AccountApiController : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly ISecurityService _securityService;
+    private readonly ITokenManager _tokenManager;
 
-    public AccountApiController(IMediator mediator)
+    public AccountApiController(IMediator mediator, ISecurityService securityService, ITokenManager tokenManager)
     {
         _mediator = mediator;
+        _securityService = securityService;
+        _tokenManager = tokenManager;
     }
 
     #region Swagger
@@ -52,7 +58,8 @@ public class AccountApiController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> LoginUser(CancellationToken token)
     {
-        return Ok();
+        var tokenDude = _tokenManager.GenerateToken(new User {Phone = "79862478961", FIO = "YfrvftyftyTtr"});
+        return Ok(tokenDude);
     }
     
     #region Swagger
@@ -69,7 +76,6 @@ public class AccountApiController : ControllerBase
     [HttpPost("logout")]
     public async Task<IActionResult> LogoutUser(CancellationToken token)
     {
-        
         return Ok();
     }
     
@@ -88,7 +94,7 @@ public class AccountApiController : ControllerBase
     [HttpPost("get-my-info")]
     public async Task<IActionResult> GetCurrentUser(CancellationToken token)
     {
-        
-        return Ok();
+        var user = _securityService.GetCurrentUser();
+        return Ok(user?.Identity?.Name);
     }
 }

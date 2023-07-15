@@ -3,12 +3,19 @@ using System.Security.Claims;
 using System.Text;
 using Data.Domain.Models;
 using Logic.Interfaces;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Logic.Services;
 
 public class JwtTokenManager : ITokenManager
 {
+    private readonly IConfiguration _configuration;
+    public JwtTokenManager(IConfiguration configuration)
+    {
+        _configuration = configuration;
+    }
+    
     public string GenerateToken(User user)
     {
         var claims = new List<Claim>
@@ -17,8 +24,7 @@ public class JwtTokenManager : ITokenManager
             new(ClaimTypes.MobilePhone, user.Phone)
         };
         
-        const string key = "Memento mori, live and enjoy every moment";
-        var authSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key));
+        var authSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["JWT:SecretKey"]!));
         
         var token = new JwtSecurityToken(
             "Artsofte",

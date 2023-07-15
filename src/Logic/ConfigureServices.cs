@@ -22,23 +22,32 @@ public static class ConfigureServices
         services.AddScoped<ISecurityService, SecurityService>();
         services.AddSingleton<ITokenManager, JwtTokenManager>();
         services.AddSingleton<IHashService, HashService>();
-        services.AddAuthentication()
+        services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
             .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme,opt =>
             {
                 opt.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = false,
+                    ValidateAudience = false,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-                    "Memento mori, we're all going to die"))
+                        configuration["JWT:SecretKey"]!))
                 };
+                // opt.SaveToken = true;
+                // opt.RequireHttpsMetadata = true;
             });
         services.AddAuthorization();
         services.AddMediatR(conf => conf.RegisterServicesFromAssembly(assembly));
         services.AddMapster(assembly);
         services.AddSwagger();
     }
+    
     private static void AddMapster(this IServiceCollection services, Assembly assembly)
     {
         var typeAdapterConfig = TypeAdapterConfig.GlobalSettings;
@@ -52,6 +61,12 @@ public static class ConfigureServices
     {
         services.AddSwaggerGen(swagger =>
         {
+            swagger.SwaggerDoc("v1",
+                new OpenApiInfo
+                {
+                    Version = "v1",
+                    Title = "ArtSofte"
+                });
             swagger.AddSecurityDefinition("Bearer",
                 new OpenApiSecurityScheme
                 {
@@ -64,7 +79,20 @@ public static class ConfigureServices
                         "Enter ‘Bearer’ [space] and then your valid token in the text input below.\r\n\r\n" +
                         "Example: \"Bearer ‘token‘"
                 });
+            swagger.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    Array.Empty<string>()
+                }
+            });
         });
     }
-
 }

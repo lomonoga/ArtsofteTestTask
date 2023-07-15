@@ -13,6 +13,7 @@ public record SaveUser(UserRegisterRequest UserRegisterRequest) : IRequest<UserR
 public class SaveUserHandler : IRequestHandler<SaveUser, UserResponse>
 {
     private ArtsofteDbContext _context;
+    
     public SaveUserHandler(ArtsofteDbContext context)
     {
         _context = context;
@@ -20,9 +21,12 @@ public class SaveUserHandler : IRequestHandler<SaveUser, UserResponse>
     
     public async Task<UserResponse> Handle(SaveUser request, CancellationToken cancellationToken)
     {
-        await _context.Users.AddAsync(request.UserRegisterRequest.Adapt<User>(), cancellationToken);
+        var entity = request.UserRegisterRequest.Adapt<User>();
+        
+        var savedUser = (await _context.Users.AddAsync(entity, cancellationToken)).Entity;
         await _context.SaveChangesAsync(cancellationToken);
+        _context.Entry(entity).State = EntityState.Detached;
 
-        return new UserResponse("ddd", "ddd", "dsd");
+        return new UserResponse(savedUser.FIO, savedUser.Phone, savedUser.Email);
     }
 }
