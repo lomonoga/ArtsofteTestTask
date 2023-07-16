@@ -1,5 +1,6 @@
 using Api.DTO;
 using Data.Domain.Models;
+using Logic.Exceptions;
 using Logic.Handlers.Users;
 using Logic.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -40,9 +41,17 @@ public class AccountApiController : ControllerBase
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
-        
-        var result = await _mediator.Send(new SaveUser(userRegisterRequest), token);
-        return Ok(result);
+
+        try
+        {
+            await _mediator.Send(new SaveUser(userRegisterRequest), token);
+        }
+        catch (UserExistsException userExistsException)
+        {
+            return BadRequest(new { code = userExistsException.Code, message = userExistsException.Message });
+        }
+
+        return Ok();
     }
     
     #region Swagger

@@ -2,6 +2,7 @@ using Api.DTO;
 using Data;
 using Data.Domain.Models;
 using Logic.DTO.Responses;
+using Logic.Exceptions;
 using Mapster;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -21,11 +22,16 @@ public class SaveUserHandler : IRequestHandler<SaveUser, UserResponse>
     
     public async Task<UserResponse> Handle(SaveUser request, CancellationToken cancellationToken)
     {
-        var entity = request.UserRegisterRequest.Adapt<User>();
+        var entityUser = request.UserRegisterRequest.Adapt<User>();
         
-        var savedUser = (await _context.Users.AddAsync(entity, cancellationToken)).Entity;
+        var existedUser = await _context.Users.FirstOrDefaultAsync(u => 
+            u.Email == entityUser.Email || u.Phone == entityUser.Phone, cancellationToken);
+        if (existedUser is not null)
+            throw new UserExistsException();
+        
+        var savedUser = (await _context.Users.AddAsync(entityUser, cancellationToken)).Entity;
         await _context.SaveChangesAsync(cancellationToken);
-        _context.Entry(entity).State = EntityState.Detached;
+        _context.Entry(entityUser).State = EntityState.Detached;
 
         return new UserResponse(savedUser.FIO, savedUser.Phone, savedUser.Email);
     }
