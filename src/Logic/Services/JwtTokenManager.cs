@@ -16,6 +16,11 @@ public class JwtTokenManager : ITokenManager
         _configuration = configuration;
     }
     
+    /// <summary>
+    /// Generating a token for the user
+    /// </summary>
+    /// <param name="user">Existing user</param>
+    /// <returns>JWT-token that is valid for 2 hours</returns>
     public string GenerateToken(User user)
     {
         var claims = new List<Claim>

@@ -13,6 +13,10 @@ public class SecurityService : ISecurityService
         _accessor = accessor;
     }
     
+    /// <summary>
+    /// Getting current user in system  
+    /// </summary>
+    /// <returns>User claims</returns>
     public ClaimsPrincipal? GetCurrentUser()
     {
         return _accessor.HttpContext?.User;
