@@ -1,10 +1,14 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
+using System.Security.Claims;
 using System.Text;
+using Data;
 using Logic.Interfaces;
 using Logic.Services;
 using Mapster;
 using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -32,12 +36,46 @@ public static class ConfigureServices
             {
                 opt.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidateIssuer = false,
+                    ValidateIssuer = true,
+                    ValidIssuer = "Artsofte",
                     ValidateAudience = false,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
                         configuration["JWT:SecretKey"]!))
+                };
+                // Adding verification of the jwt token for login and logout by receiving a user from jwt by Email
+                // and verifying this user to log in or log out 
+                // When logging in, ActiveSession = true
+                // When logging out, ActiveSession = false
+                opt.Events = new JwtBearerEvents
+                {
+                    OnTokenValidated = context =>
+                    {
+                        var jwtToken = context.HttpContext.Request.Headers["Authorization"]
+                            .FirstOrDefault()?
+                            .Split(" ")
+                            .Last();
+                        
+                        if (jwtToken is null) context.Fail("Token revoked");
+
+                        var userEmail = new JwtSecurityTokenHandler().ReadJwtToken(jwtToken)
+                            .Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+                        
+                        if (userEmail is null) context.Fail("Token revoked");
+                        
+                        using (var dbContext = context.HttpContext
+                                   .RequestServices.GetRequiredService<ArtsofteDbContext>())
+                        {
+                            if (dbContext.Users.AnyAsync(user => 
+                                    user.Email == userEmail
+                                    && !user.ActiveSession).Result
+                                ) 
+                                context.Fail("Token revoked");
+                        }
+                        
+                        return Task.CompletedTask;
+                    }
                 };
                 // opt.SaveToken = true;
                 // opt.RequireHttpsMetadata = true;
@@ -57,6 +95,7 @@ public static class ConfigureServices
         services.AddSingleton(typeAdapterConfig);
     }
     
+    // Adding jwt Tokens to Swagger Requests 
     private static void AddSwagger(this IServiceCollection services)
     {
         services.AddSwaggerGen(swagger =>
