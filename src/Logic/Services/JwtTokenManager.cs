@@ -37,7 +37,7 @@ public class JwtTokenManager : ITokenManager
             null,
             claims: claims,
             signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256),
-            expires: DateTime.UtcNow.Add(TimeSpan.FromHours(2)));
+            expires: DateTime.UtcNow.ToUniversalTime().Add(TimeSpan.FromHours(2)));
         
         var handler = new JwtSecurityTokenHandler();
         return handler.WriteToken(token);

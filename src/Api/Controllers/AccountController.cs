@@ -1,5 +1,7 @@
+using System.Security.Claims;
 using Api.DTO;
 using Data.Domain.Models;
+using Logic.Common.DTO.Requests;
 using Logic.Exceptions;
 using Logic.Handlers.Users;
 using Logic.Interfaces;
@@ -41,7 +43,6 @@ public class AccountApiController : ControllerBase
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
-
         try
         {
             await _mediator.Send(new SaveUser(userRegisterRequest), token);
@@ -65,9 +66,22 @@ public class AccountApiController : ControllerBase
     #endregion
     
     [HttpPost("login")]
-    public async Task<IActionResult> LoginUser(CancellationToken token)
+    public async Task<IActionResult> LoginUser([FromBody]UserLoginRequest userLoginRequest,CancellationToken token)
     {
-        var tokenDude = _tokenManager.GenerateToken(new User {Phone = "79862478961", FIO = "YfrvftyftyTtr"});
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        User userResponse;
+        try
+        {
+            userResponse = await _mediator.Send(new LoginUser(userLoginRequest), token);
+        }
+        catch (UserDoesNotExistException userExistsException)
+        {
+            return BadRequest(new { code = userExistsException.Code, message = userExistsException.Message });
+        }
+        
+        var tokenDude = _tokenManager.GenerateToken(userResponse);
+        
         return Ok(tokenDude);
     }
     
@@ -104,6 +118,6 @@ public class AccountApiController : ControllerBase
     public async Task<IActionResult> GetCurrentUser(CancellationToken token)
     {
         var user = _securityService.GetCurrentUser();
-        return Ok(user?.Identity?.Name);
+        return Ok(user.FindFirstValue(ClaimTypes.Name));
     }
 }
