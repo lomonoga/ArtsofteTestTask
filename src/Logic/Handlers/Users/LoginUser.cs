@@ -2,6 +2,7 @@ using Data;
 using Data.Domain.Models;
 using Logic.Common.DTO.Requests;
 using Logic.Exceptions;
+using Logic.Exceptions.User;
 using Logic.Interfaces;
 using MediatR;
 using Microsoft.EntityFrameworkCore;

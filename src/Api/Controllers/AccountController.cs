@@ -2,7 +2,8 @@ using System.Security.Claims;
 using Api.DTO;
 using Data.Domain.Models;
 using Logic.Common.DTO.Requests;
-using Logic.Exceptions;
+using Logic.Common.DTO.Responses;
+using Logic.Exceptions.User;
 using Logic.Handlers.Users;
 using Logic.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -49,7 +50,8 @@ public class AccountApiController : ControllerBase
         }
         catch (UserExistsException userExistsException)
         {
-            return BadRequest(new { code = userExistsException.Code, message = userExistsException.Message });
+            return BadRequest(new { code = userExistsException.Code, 
+                message = userExistsException.Message });
         }
 
         return Ok();
@@ -70,14 +72,16 @@ public class AccountApiController : ControllerBase
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
+        
         User userResponse;
         try
         {
             userResponse = await _mediator.Send(new LoginUser(userLoginRequest), token);
         }
-        catch (UserDoesNotExistException userExistsException)
+        catch (UserDoesNotExistException userDoesNotExistException)
         {
-            return BadRequest(new { code = userExistsException.Code, message = userExistsException.Message });
+            return BadRequest(new { code = userDoesNotExistException.Code,
+                message = userDoesNotExistException.Message });
         }
         
         var tokenDude = _tokenManager.GenerateToken(userResponse);
@@ -99,6 +103,16 @@ public class AccountApiController : ControllerBase
     [HttpPost("logout")]
     public async Task<IActionResult> LogoutUser(CancellationToken token)
     {
+        try
+        {
+            await _mediator.Send(new LogoutUser(), token);
+        }
+        catch (UserLogoutException userLogoutException)
+        {
+            return BadRequest(new { code = userLogoutException.Code, 
+                message = userLogoutException.Message });
+        }
+        
         return Ok();
     }
     
@@ -115,9 +129,19 @@ public class AccountApiController : ControllerBase
     
     [Authorize]
     [HttpPost("get-my-info")]
-    public async Task<IActionResult> GetCurrentUser(CancellationToken token)
+    public async Task<IActionResult> GetInfoCurrentUser(CancellationToken token)
     {
-        var user = _securityService.GetCurrentUser();
-        return Ok(user.FindFirstValue(ClaimTypes.Name));
+        UserResponse userResponse;
+        try
+        {
+            userResponse = await _mediator.Send(new GetUser(), token);
+        }
+        catch (GetCurrentUserException getCurrentUserException)
+        {
+            return BadRequest(new { code = getCurrentUserException.Code, 
+                message = getCurrentUserException.Message });
+        }
+        
+        return Ok(userResponse);
     }
 }

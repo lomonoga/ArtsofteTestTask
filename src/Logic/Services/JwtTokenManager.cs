@@ -26,7 +26,7 @@ public class JwtTokenManager : ITokenManager
         var claims = new List<Claim>
         {
             new(ClaimTypes.Name, user.FIO),
-            new(ClaimTypes.MobilePhone, user.Phone),
+            // new(ClaimTypes.MobilePhone, user.Phone),
             new(ClaimTypes.Email, user.Email)
         };
         

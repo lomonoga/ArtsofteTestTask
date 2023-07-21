@@ -1,11 +1,11 @@
 namespace Logic.Exceptions;
 
-public class UserExistsException : Exception
+public class BaseException : Exception
 {
     public readonly string Code;
     public readonly string Message;
 
-    public UserExistsException(string message = "Такой пользователь уже существует", string code = "409") 
+    public BaseException(string message = "Ошибка", string code = "400") 
         : base(message, innerException: null)
     {
         Code = code;

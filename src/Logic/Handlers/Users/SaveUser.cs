@@ -3,6 +3,7 @@ using Data;
 using Data.Domain.Models;
 using Logic.Common.DTO.Responses;
 using Logic.Exceptions;
+using Logic.Exceptions.User;
 using Logic.Interfaces;
 using Mapster;
 using MediatR;
@@ -42,6 +43,6 @@ public class SaveUserHandler : IRequestHandler<SaveUser, UserResponse>
         await _context.SaveChangesAsync(cancellationToken);
         _context.Entry(entityUser).State = EntityState.Detached;
 
-        return new UserResponse(savedUser.FIO, savedUser.Phone, savedUser.Email);
+        return new UserResponse(savedUser.FIO, savedUser.Phone, savedUser.Email, savedUser.LastLogin);
     }
 }

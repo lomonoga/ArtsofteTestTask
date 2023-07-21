@@ -11,6 +11,6 @@ public static class ConfigureServices
         services.AddDbContext<ArtsofteDbContext>(options =>
         {
             options.UseNpgsql(configuration.GetConnectionString("def_connection"));
-        });
+        }, ServiceLifetime.Transient);
     }
 }
